@@ -1,8 +1,8 @@
-# LLM Team App Builder
+# VedAppBuilder
 
 ## Overview
 
-LLM Team App Builder is a multi-agent AI orchestration system that uses specialized LLM agents to collaboratively build web and mobile applications from concept to MVP deployment. The system coordinates multiple free AI models (Gemini, Perplexity, OpenAI, HuggingFace) where each acts as a specialized team member with specific roles (Product Manager, Designer, Frontend/Backend Developers, DevOps, QA, Coordinator).
+VedAppBuilder is a multi-agent AI orchestration system that uses specialized LLM agents to collaboratively build web and mobile applications from concept to MVP deployment. The system coordinates multiple free AI models (Gemini, Perplexity, OpenAI, HuggingFace) where each acts as a specialized team member with specific roles (Product Manager, Designer, Frontend/Backend Developers, DevOps, QA, Coordinator).
 
 The application features a futuristic glassmorphism-themed dashboard that visualizes the agent workflow in real-time, showing each agent's status, outputs, and progress through the development pipeline.
 
@@ -83,6 +83,7 @@ Seven specialized agents with distinct roles:
 - In-memory storage using Map data structures
 - Suitable for development and demonstration
 - No persistence between server restarts
+- **Note:** Project history resets when the server restarts - this is expected behavior for the in-memory storage demo
 
 **Designed for PostgreSQL:**
 - Drizzle ORM schema fully defined in `shared/schema.ts`

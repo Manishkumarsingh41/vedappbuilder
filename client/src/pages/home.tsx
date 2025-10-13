@@ -6,8 +6,11 @@ import ProjectForm from "@/components/ProjectForm";
 import AgentCard from "@/components/AgentCard";
 import WorkflowTimeline from "@/components/WorkflowTimeline";
 import CodeDisplay from "@/components/CodeDisplay";
-import { agents } from "@shared/schema";
-import { Sparkles, Zap } from "lucide-react";
+import CountdownTimer from "@/components/CountdownTimer";
+import ProjectHistory from "@/components/ProjectHistory";
+import GitHubPushDialog from "@/components/GitHubPushDialog";
+import { agents, type Project } from "@shared/schema";
+import { Sparkles, Zap, Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 
@@ -25,6 +28,11 @@ export default function Home() {
     queryKey: ["/api/projects", currentProjectId, "messages"],
     enabled: !!currentProjectId,
     refetchInterval: currentProjectId ? 2000 : false,
+  });
+
+  const { data: currentProject } = useQuery<Project>({
+    queryKey: ["/api/projects", currentProjectId],
+    enabled: !!currentProjectId,
   });
 
   const createProjectMutation = useMutation({
@@ -60,6 +68,15 @@ export default function Home() {
 
   const handleBackToProjects = () => {
     setCurrentProjectId(null);
+  };
+
+  const handleDownloadProject = () => {
+    if (!currentProjectId) return;
+    window.location.href = `/api/projects/${currentProjectId}/download`;
+    toast({
+      title: "Downloading Project",
+      description: "Your project files are being downloaded...",
+    });
   };
 
   // Calculate workflow steps based on messages
@@ -115,7 +132,7 @@ export default function Home() {
                   <span className="text-sm font-medium text-primary">Powered by Multi-Agent AI</span>
                 </div>
                 <h1 className="text-6xl font-bold mb-4 font-['Space_Grotesk'] bg-gradient-to-r from-primary via-secondary to-primary bg-clip-text text-transparent">
-                  LLM Team App Builder
+                  VedAppBuilder
                 </h1>
                 <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
                   Transform your ideas into production-ready apps with our futuristic multi-agent AI system
@@ -126,6 +143,7 @@ export default function Home() {
                 <ProjectForm onSubmit={handleProjectSubmit} />
                 
                 <div className="space-y-6">
+                  <ProjectHistory onSelectProject={setCurrentProjectId} />
                   <div className="backdrop-blur-xl bg-white/5 border border-white/10 rounded-lg p-6">
                     <h3 className="text-xl font-semibold mb-4 font-['Space_Grotesk'] flex items-center gap-2">
                       <Zap className="text-primary" size={20} />
@@ -148,7 +166,7 @@ export default function Home() {
           </div>
         ) : (
           <div className="container mx-auto px-6 py-12">
-            <div className="mb-8">
+            <div className="mb-8 flex items-center justify-between">
               <Button 
                 variant="ghost" 
                 onClick={handleBackToProjects}
@@ -156,6 +174,18 @@ export default function Home() {
               >
                 ← Back to Projects
               </Button>
+              <div className="flex gap-3">
+                <Button 
+                  onClick={handleDownloadProject}
+                  className="gap-2"
+                >
+                  <Download size={18} />
+                  Download Code
+                </Button>
+                {currentProject && (
+                  <GitHubPushDialog projectName={currentProject.name} />
+                )}
+              </div>
             </div>
 
             <div className="mb-12">
@@ -189,6 +219,10 @@ export default function Home() {
                   />
                 );
               })}
+            </div>
+
+            <div className="mb-8">
+              <CountdownTimer duration={300} />
             </div>
 
             <div className="grid lg:grid-cols-2 gap-8">

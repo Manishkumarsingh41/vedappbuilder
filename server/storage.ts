@@ -3,6 +3,7 @@ import { randomUUID } from "crypto";
 
 export interface IStorage {
   getProject(id: string): Promise<Project | undefined>;
+  getAllProjects(): Promise<Project[]>;
   createProject(project: InsertProject): Promise<Project>;
   getAgentMessages(projectId: string): Promise<AgentMessage[]>;
   createAgentMessage(message: InsertAgentMessage): Promise<AgentMessage>;
@@ -19,6 +20,12 @@ export class MemStorage implements IStorage {
 
   async getProject(id: string): Promise<Project | undefined> {
     return this.projects.get(id);
+  }
+
+  async getAllProjects(): Promise<Project[]> {
+    return Array.from(this.projects.values()).sort(
+      (a, b) => b.createdAt.getTime() - a.createdAt.getTime()
+    );
   }
 
   async createProject(insertProject: InsertProject): Promise<Project> {
