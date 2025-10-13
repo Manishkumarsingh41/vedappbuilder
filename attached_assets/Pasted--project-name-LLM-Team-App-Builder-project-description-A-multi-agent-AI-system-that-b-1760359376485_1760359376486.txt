@@ -1,0 +1,113 @@
+{
+  "project_name": "LLM_Team_App_Builder",
+  "project_description": "A multi-agent AI system that builds web and mobile apps collaboratively using free LLMs (Gemini, Perplexity, OpenAI Free, Hugging Face). Each model acts as a specialized team member. The system guides an idea from concept to MVP deployment.",
+  "mvp_goal": "Deliver a functional, deployable MVP web app or mobile app with basic features, working UI, connected backend, and test coverage within minimal time.",
+  "team": {
+    "1_Product_Manager": {
+      "name": "Perry",
+      "model": "Perplexity_Free",
+      "role": "Define product goals, identify user problems, analyze competitors, and outline MVP scope. Generate clear documentation for all team members.",
+      "tasks": [
+        "Research similar apps or tools.",
+        "Define user pain points and primary features.",
+        "Write short feature specs for MVP delivery.",
+        "Summarize all findings in structured text for design and dev teams."
+      ]
+    },
+    "2_UI_UX_Designer": {
+      "name": "Gemma",
+      "model": "Gemini_1.5_Pro_Free",
+      "role": "Convert Perry's specifications into wireframes and UI layout descriptions. Ensure simple, intuitive flow for both web and mobile screens.",
+      "tasks": [
+        "Create screen hierarchy and flow (Home, Entry, Summary, Settings, etc.).",
+        "Suggest UI color scheme and layout grid.",
+        "Provide JSON-style component definitions for front-end developers."
+      ]
+    },
+    "3_Frontend_Developer": {
+      "name": "Ollie",
+      "model": "OpenAI_Free",
+      "role": "Build the user interface using React for web and React Native for app. Handle routing, state, and API integration.",
+      "tasks": [
+        "Generate clean, documented React components.",
+        "Integrate API endpoints for backend logic.",
+        "Ensure responsive and mobile-friendly design.",
+        "Fix UI bugs found by QA."
+      ]
+    },
+    "4_Backend_Developer": {
+      "name": "Hugo",
+      "model": "HuggingFace_Free_Model",
+      "role": "Build backend using Flask or Node.js. Create and manage REST API endpoints for user data, authentication, and notifications.",
+      "tasks": [
+        "Design database schema (SQLite for MVP).",
+        "Create API endpoints (add, get, update, delete data).",
+        "Add simple authentication or user session logic.",
+        "Debug and maintain backend performance."
+      ]
+    },
+    "5_DevOps_Engineer": {
+      "name": "Milo",
+      "model": "HuggingFace_Local_or_Ollama_Free",
+      "role": "Handle deployment, automation, and continuous integration for MVP.",
+      "tasks": [
+        "Write Dockerfile for frontend and backend.",
+        "Create CI/CD workflow using GitHub Actions.",
+        "Deploy to Render or Replit web server.",
+        "Monitor errors and deployment logs."
+      ]
+    },
+    "6_QA_Tester": {
+      "name": "Gemma_QA",
+      "model": "Gemini_1.5_Pro_Free",
+      "role": "Test user flows, check UI responsiveness, detect API bugs, and report issues.",
+      "tasks": [
+        "Simulate user inputs for major functions.",
+        "Verify API responses and UI rendering.",
+        "Check mobile layout and accessibility.",
+        "Confirm all MVP features work together."
+      ]
+    },
+    "7_Project_Manager": {
+      "name": "Ava",
+      "model": "OpenAI_Free_or_Perplexity_Free",
+      "role": "Coordinate all team members, assign tasks sequentially, track project progress, and verify completion of MVP milestone.",
+      "tasks": [
+        "Start the workflow by asking Perry for MVP scope.",
+        "Assign next tasks to Gemma, Ollie, Hugo, Milo, and Gemma_QA.",
+        "Ensure all issues fixed before deployment.",
+        "Deliver final MVP report and deployment link."
+      ]
+    }
+  },
+  "workflow": {
+    "step_1": "Ava requests Perry to define the product scope and MVP features.",
+    "step_2": "Gemma converts the plan into interface layout and component descriptions.",
+    "step_3": "Ollie develops frontend from Gemma’s design using React (web) and React Native (app).",
+    "step_4": "Hugo builds backend API and database, integrating with Ollie’s frontend.",
+    "step_5": "Milo packages and deploys app using Docker on Render or Replit.",
+    "step_6": "Gemma_QA tests the product and sends bug reports to Ollie and Hugo.",
+    "step_7": "Ava confirms MVP readiness and generates final summary."
+  },
+  "expected_output": {
+    "product_name": "SmartSpend MVP",
+    "features": [
+      "Add expense with category and note",
+      "View daily and weekly summaries",
+      "Set reminder notifications",
+      "Responsive web and mobile UI"
+    ],
+    "tech_stack": {
+      "frontend": "React + Tailwind CSS (web) / React Native (app)",
+      "backend": "Flask + SQLite",
+      "deployment": "Render or Replit Web",
+      "testing": "Manual QA + Automated Unit Tests"
+    },
+    "deliverables": [
+      "Functional MVP app",
+      "Deployed test link",
+      "Project documentation",
+      "Bug report and next sprint plan"
+    ]
+  }
+}
