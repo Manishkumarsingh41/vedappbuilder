@@ -1,4 +1,6 @@
 import { useState } from "react";
+import { useQuery, useMutation } from "@tanstack/react-query";
+import { queryClient, apiRequest } from "@/lib/queryClient";
 import ParticleBackground from "@/components/ParticleBackground";
 import ProjectForm from "@/components/ProjectForm";
 import AgentCard from "@/components/AgentCard";
@@ -7,60 +9,104 @@ import CodeDisplay from "@/components/CodeDisplay";
 import { agents } from "@shared/schema";
 import { Sparkles, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useToast } from "@/hooks/use-toast";
+
+type ProjectFormData = {
+  name: string;
+  description: string;
+  requirements: string;
+};
 
 export default function Home() {
-  const [projectStarted, setProjectStarted] = useState(false);
-  const [currentStep, setCurrentStep] = useState(0);
+  const [currentProjectId, setCurrentProjectId] = useState<string | null>(null);
+  const { toast } = useToast();
 
-  // Mock workflow steps
-  const workflowSteps = [
-    { id: 1, title: "Product Definition", description: "Perry analyzes requirements and defines MVP scope", status: currentStep > 0 ? "complete" : currentStep === 0 ? "active" : "pending", agent: "Perry" },
-    { id: 2, title: "UI/UX Design", description: "Gemma creates wireframes and design system", status: currentStep > 1 ? "complete" : currentStep === 1 ? "active" : "pending", agent: "Gemma" },
-    { id: 3, title: "Frontend Development", description: "Ollie builds React components", status: currentStep > 2 ? "complete" : currentStep === 2 ? "active" : "pending", agent: "Ollie" },
-    { id: 4, title: "Backend Development", description: "Hugo creates API and database", status: currentStep > 3 ? "complete" : currentStep === 3 ? "active" : "pending", agent: "Hugo" },
-    { id: 5, title: "DevOps & Deployment", description: "Milo handles deployment automation", status: currentStep > 4 ? "complete" : currentStep === 4 ? "active" : "pending", agent: "Milo" },
-    { id: 6, title: "Quality Assurance", description: "Gemma QA tests all functionality", status: currentStep > 5 ? "complete" : currentStep === 5 ? "active" : "pending", agent: "Gemma QA" },
-    { id: 7, title: "Final Review", description: "Ava coordinates final delivery", status: currentStep > 6 ? "complete" : currentStep === 6 ? "active" : "pending", agent: "Ava" },
-  ];
+  const { data: messages = [] } = useQuery<any[]>({
+    queryKey: ["/api/projects", currentProjectId, "messages"],
+    enabled: !!currentProjectId,
+    refetchInterval: currentProjectId ? 2000 : false,
+  });
 
-  const handleProjectSubmit = (data: any) => {
-    console.log('Starting project:', data);
-    setProjectStarted(true);
-    // Simulate workflow progression
-    const interval = setInterval(() => {
-      setCurrentStep(prev => {
-        if (prev >= 6) {
-          clearInterval(interval);
-          return prev;
-        }
-        return prev + 1;
+  const createProjectMutation = useMutation({
+    mutationFn: async (data: ProjectFormData) => {
+      const response = await fetch("/api/projects", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
       });
-    }, 3000);
+      if (!response.ok) throw new Error("Failed to create project");
+      return await response.json();
+    },
+    onSuccess: (data: any) => {
+      setCurrentProjectId(data.project.id);
+      toast({
+        title: "Project Created!",
+        description: "AI agents are now working on your project...",
+      });
+      queryClient.invalidateQueries({ queryKey: ["/api/projects"] });
+    },
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "Failed to create project. Please try again.",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const handleProjectSubmit = (data: ProjectFormData) => {
+    createProjectMutation.mutate(data);
   };
 
-  const mockCode = `import { useState } from 'react';
-
-function TaskManager() {
-  const [tasks, setTasks] = useState([]);
-  
-  const addTask = (task) => {
-    setTasks([...tasks, task]);
+  const handleBackToProjects = () => {
+    setCurrentProjectId(null);
   };
-  
-  return (
-    <div className="p-6">
-      <h1>My Tasks</h1>
-      {/* Component UI */}
-    </div>
+
+  // Calculate workflow steps based on messages
+  const workflowSteps = agents.map((agent, idx) => {
+    const agentMessages = messages.filter((m: any) => m.agentName === agent.name);
+    const latestMessage = agentMessages[agentMessages.length - 1];
+    
+    let status: "pending" | "active" | "complete" = "pending";
+    if (latestMessage) {
+      if (latestMessage.status === "complete") status = "complete";
+      else if (latestMessage.status === "working") status = "active";
+    }
+    
+    return {
+      id: idx + 1,
+      title: agent.role,
+      description: `${agent.name} ${agent.role === "Product Manager" ? "analyzes requirements" : agent.role === "UI/UX Designer" ? "creates design" : agent.role === "Frontend Developer" ? "builds frontend" : agent.role === "Backend Developer" ? "creates backend" : agent.role === "DevOps Engineer" ? "handles deployment" : agent.role === "QA Tester" ? "tests quality" : "coordinates delivery"}`,
+      status,
+      agent: agent.name,
+    };
+  });
+
+  // Extract code from messages for display (only completed messages)
+  const completedMessages = messages.filter((m: any) => m.status === "complete");
+  const codeMessages = completedMessages.filter((m: any) => 
+    m.message.includes("```") || m.message.includes("function") || m.message.includes("const")
   );
-}`;
+  const latestCode = codeMessages.length > 0 ? codeMessages[codeMessages.length - 1] : null;
+
+  const extractCodeFromMessage = (message: string) => {
+    const codeBlockMatch = message.match(/```[\w]*\n([\s\S]*?)```/);
+    if (codeBlockMatch) return codeBlockMatch[1];
+    
+    // Simple heuristic: if message contains function/const/import, treat as code
+    if (message.includes("function") || message.includes("const") || message.includes("import")) {
+      return message;
+    }
+    
+    return null;
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-accent/5 relative overflow-hidden">
       <ParticleBackground />
       
       <div className="relative z-10">
-        {!projectStarted ? (
+        {!currentProjectId ? (
           <div className="min-h-screen flex items-center justify-center p-8">
             <div className="w-full max-w-6xl">
               <div className="text-center mb-12">
@@ -105,7 +151,7 @@ function TaskManager() {
             <div className="mb-8">
               <Button 
                 variant="ghost" 
-                onClick={() => setProjectStarted(false)}
+                onClick={handleBackToProjects}
                 data-testid="button-back"
               >
                 ← Back to Projects
@@ -118,24 +164,31 @@ function TaskManager() {
             </div>
 
             <div className="grid lg:grid-cols-3 gap-8 mb-12">
-              {agents.slice(0, 3).map((agent, idx) => (
-                <AgentCard
-                  key={agent.name}
-                  name={agent.name}
-                  role={agent.role}
-                  model={agent.model}
-                  color={agent.color}
-                  status={
-                    currentStep > idx ? "complete" : 
-                    currentStep === idx ? "working" : "idle"
-                  }
-                  tasks={[
-                    `Task 1 for ${agent.name}`,
-                    `Task 2 for ${agent.name}`
-                  ]}
-                  output={currentStep > idx ? `${agent.name} completed their work successfully` : undefined}
-                />
-              ))}
+              {agents.slice(0, 3).map((agent) => {
+                const agentMessages = messages.filter((m: any) => m.agentName === agent.name);
+                const latestMessage = agentMessages[agentMessages.length - 1];
+                const completedMessage = agentMessages.find((m: any) => m.status === "complete");
+                
+                let status: "idle" | "working" | "complete" = "idle";
+                if (completedMessage) status = "complete";
+                else if (latestMessage?.status === "working") status = "working";
+                
+                return (
+                  <AgentCard
+                    key={agent.name}
+                    name={agent.name}
+                    role={agent.role}
+                    model={agent.model}
+                    color={agent.color}
+                    status={status}
+                    tasks={[
+                      `Analyzing project requirements`,
+                      `Generating ${agent.role.toLowerCase()} output`
+                    ]}
+                    output={completedMessage ? completedMessage.message.substring(0, 150) + "..." : undefined}
+                  />
+                );
+              })}
             </div>
 
             <div className="grid lg:grid-cols-2 gap-8">
@@ -145,12 +198,29 @@ function TaskManager() {
               </div>
 
               <div>
-                <h3 className="text-2xl font-bold mb-6 font-['Space_Grotesk']">Generated Code</h3>
-                <CodeDisplay
-                  code={mockCode}
-                  language="TypeScript"
-                  fileName="TaskManager.tsx"
-                />
+                <h3 className="text-2xl font-bold mb-6 font-['Space_Grotesk']">Agent Outputs</h3>
+                <div className="space-y-4">
+                  {messages.length === 0 ? (
+                    <div className="backdrop-blur-xl bg-white/5 border border-white/10 rounded-lg p-6">
+                      <p className="text-muted-foreground text-center">Agents are starting work...</p>
+                    </div>
+                  ) : latestCode && extractCodeFromMessage(latestCode.message) ? (
+                    <CodeDisplay
+                      code={extractCodeFromMessage(latestCode.message) || ""}
+                      language="TypeScript"
+                      fileName={`${latestCode.agentName}_output.tsx`}
+                    />
+                  ) : (
+                    <div className="backdrop-blur-xl bg-white/5 border border-white/10 rounded-lg p-6 max-h-96 overflow-y-auto">
+                      {completedMessages.slice(-3).map((msg: any, idx: number) => (
+                        <div key={idx} className="mb-4 last:mb-0">
+                          <p className="text-sm font-medium text-primary mb-1">{msg.agentName}</p>
+                          <p className="text-sm text-foreground/80">{msg.message}</p>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
           </div>
