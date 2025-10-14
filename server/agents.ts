@@ -131,18 +131,15 @@ export async function callAgent(agentName: string, userMessage: string, context?
       return data.choices[0].message.content;
     } 
     else if (config.model === "gemini") {
-      const { GoogleGenAI } = await import("@google/genai");
-      const ai = new GoogleGenAI({ apiKey: GEMINI_API_KEY! });
-      
-      const response = await ai.models.generateContent({
-        model: "gemini-2.5-flash",
-        config: {
-          systemInstruction: config.systemPrompt
-        },
-        contents: fullPrompt
+      const genai = await import("@google/genai");
+      const genAI = new genai.GoogleGenerativeAI(GEMINI_API_KEY!);
+      const model = genAI.getGenerativeModel({
+        model: "gemini-1.5-flash",
+        systemInstruction: config.systemPrompt,
       });
-      
-      return response.text || "No response generated";
+      const result = await model.generateContent(fullPrompt);
+      const response = await result.response;
+      return response.text() || "No response generated";
     }
     else if (config.model === "openai") {
       const { OpenAI } = await import("openai");
@@ -168,18 +165,3 @@ export async function callAgent(agentName: string, userMessage: string, context?
   }
 }
 
-export async function orchestrateAgents(projectDescription: string): Promise<Array<{ agent: string; message: string }>> {
-  const results: Array<{ agent: string; message: string }> = [];
-  let context = "";
-
-  for (const config of agentConfigs) {
-    const response = await callAgent(config.name, projectDescription, context);
-    results.push({ agent: config.name, message: response });
-    context += `\n\n${config.name} (${config.role}):\n${response}`;
-    
-    // Small delay to avoid rate limits
-    await new Promise(resolve => setTimeout(resolve, 500));
-  }
-
-  return results;
-}
