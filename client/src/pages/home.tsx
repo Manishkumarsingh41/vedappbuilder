@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import ParticleBackground from "@/components/ParticleBackground";
@@ -6,11 +6,12 @@ import ProjectForm from "@/components/ProjectForm";
 import AgentCard from "@/components/AgentCard";
 import WorkflowTimeline from "@/components/WorkflowTimeline";
 import CodeDisplay from "@/components/CodeDisplay";
-import CountdownTimer from "@/components/CountdownTimer";
+import CodePreview from "@/components/CodePreview";
+import ProjectChat from "@/components/ProjectChat";
 import ProjectHistory from "@/components/ProjectHistory";
 import GitHubPushDialog from "@/components/GitHubPushDialog";
 import { agents, type Project } from "@shared/schema";
-import { Sparkles, Zap, Download } from "lucide-react";
+import { Sparkles, Zap, Download, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 
@@ -22,6 +23,7 @@ type ProjectFormData = {
 
 export default function Home() {
   const [currentProjectId, setCurrentProjectId] = useState<string | null>(null);
+  const [hasShownCompletion, setHasShownCompletion] = useState(false);
   const { toast } = useToast();
 
   const { data: messages = [] } = useQuery<any[]>({
@@ -68,6 +70,7 @@ export default function Home() {
 
   const handleBackToProjects = () => {
     setCurrentProjectId(null);
+    setHasShownCompletion(false);
   };
 
   const handleDownloadProject = () => {
@@ -78,6 +81,25 @@ export default function Home() {
       description: "Your project files are being downloaded...",
     });
   };
+
+  // Check if all agents have completed and show success notification
+  useEffect(() => {
+    if (!currentProjectId || messages.length === 0 || hasShownCompletion) return;
+
+    const completedMessages = messages.filter((m: any) => m.status === "complete");
+    const allAgentsCompleted = agents.every((agent) => 
+      completedMessages.some((m: any) => m.agentName === agent.name)
+    );
+
+    if (allAgentsCompleted) {
+      setHasShownCompletion(true);
+      toast({
+        title: "🎉 Project Complete!",
+        description: "All AI agents have finished building your application. You can now preview, download, or continue refining via chat.",
+        duration: 8000,
+      });
+    }
+  }, [messages, currentProjectId, hasShownCompletion, toast]);
 
   // Calculate workflow steps based on messages
   const workflowSteps = agents.map((agent, idx) => {
@@ -189,12 +211,12 @@ export default function Home() {
             </div>
 
             <div className="mb-12">
-              <h2 className="text-4xl font-bold mb-2 font-['Space_Grotesk']">Building Your App</h2>
-              <p className="text-muted-foreground">Watch AI agents collaborate in real-time</p>
+              <h2 className="text-4xl font-bold mb-2 font-['Space_Grotesk']">AI Agent Team</h2>
+              <p className="text-muted-foreground">7 specialized agents working together on your project</p>
             </div>
 
-            <div className="grid lg:grid-cols-3 gap-8 mb-12">
-              {agents.slice(0, 3).map((agent) => {
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-12">
+              {agents.map((agent) => {
                 const agentMessages = messages.filter((m: any) => m.agentName === agent.name);
                 const latestMessage = agentMessages[agentMessages.length - 1];
                 const completedMessage = agentMessages.find((m: any) => m.status === "complete");
@@ -212,53 +234,65 @@ export default function Home() {
                     color={agent.color}
                     status={status}
                     tasks={[
-                      `Analyzing project requirements`,
-                      `Generating ${agent.role.toLowerCase()} output`
+                      agent.role === "Product Manager" ? "Analyzing requirements" :
+                      agent.role === "UI/UX Designer" ? "Creating design specs" :
+                      agent.role === "Frontend Developer" ? "Building frontend" :
+                      agent.role === "Backend Developer" ? "Creating backend" :
+                      agent.role === "DevOps Engineer" ? "Handling deployment" :
+                      agent.role === "QA Tester" ? "Testing quality" :
+                      "Coordinating delivery"
                     ]}
-                    output={completedMessage ? completedMessage.message.substring(0, 150) + "..." : undefined}
+                    output={completedMessage ? completedMessage.message : undefined}
                   />
                 );
               })}
             </div>
 
-            <div className="mb-8">
-              <CountdownTimer duration={300} />
-            </div>
-
-            <div className="grid lg:grid-cols-2 gap-8">
+            <div className="space-y-8 mt-8">
+              {/* Code Preview Section - Full Width */}
               <div>
-                <h3 className="text-2xl font-bold mb-6 font-['Space_Grotesk']">Workflow Progress</h3>
-                <WorkflowTimeline steps={workflowSteps as any} />
+                <h3 className="text-2xl font-bold mb-6 font-['Space_Grotesk']">Generated Code & Preview</h3>
+                <CodePreview messages={messages} />
               </div>
 
-              <div>
-                <h3 className="text-2xl font-bold mb-6 font-['Space_Grotesk']">Agent Outputs</h3>
-                <div className="space-y-4">
-                  {messages.length === 0 ? (
-                    <div className="backdrop-blur-xl bg-white/5 border border-white/10 rounded-lg p-6">
-                      <p className="text-muted-foreground text-center">Agents are starting work...</p>
-                    </div>
-                  ) : latestCode && extractCodeFromMessage(latestCode.message) ? (
-                    <CodeDisplay
-                      code={extractCodeFromMessage(latestCode.message) || ""}
-                      language="TypeScript"
-                      fileName={`${latestCode.agentName}_output.tsx`}
-                    />
-                  ) : (
-                    <div className="backdrop-blur-xl bg-white/5 border border-white/10 rounded-lg p-6 max-h-96 overflow-y-auto">
-                      {completedMessages.slice(-3).map((msg: any, idx: number) => (
-                        <div key={idx} className="mb-4 last:mb-0">
-                          <p className="text-sm font-medium text-primary mb-1">{msg.agentName}</p>
-                          <p className="text-sm text-foreground/80">{msg.message}</p>
-                        </div>
-                      ))}
-                    </div>
-                  )}
+              {/* Workflow and Agent Outputs - Side by Side */}
+              <div className="grid lg:grid-cols-2 gap-8">
+                <div>
+                  <h3 className="text-2xl font-bold mb-6 font-['Space_Grotesk']">Workflow Progress</h3>
+                  <WorkflowTimeline steps={workflowSteps as any} />
+                </div>
+
+                <div>
+                  <h3 className="text-2xl font-bold mb-6 font-['Space_Grotesk']">Agent Messages</h3>
+                  <div className="space-y-4">
+                    {messages.length === 0 ? (
+                      <div className="backdrop-blur-xl bg-white/5 border border-white/10 rounded-lg p-6">
+                        <p className="text-muted-foreground text-center">Agents are starting work...</p>
+                      </div>
+                    ) : (
+                      <div className="backdrop-blur-xl bg-white/5 border border-white/10 rounded-lg p-6 max-h-[600px] overflow-y-auto">
+                        {completedMessages.map((msg: any, idx: number) => (
+                          <div key={idx} className="mb-4 last:mb-0 pb-4 last:pb-0 border-b last:border-b-0 border-white/10">
+                            <div className="flex items-center gap-2 mb-2">
+                              <span className="text-sm font-medium text-primary">{msg.agentName}</span>
+                              <span className="text-xs text-muted-foreground">• {msg.agentRole}</span>
+                            </div>
+                            <p className="text-sm text-foreground/80 whitespace-pre-wrap font-mono">
+                              {msg.message}
+                            </p>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
             </div>
           </div>
         )}
+
+        {/* Project Chat - Floating chat for real-time instructions */}
+        {currentProjectId && <ProjectChat projectId={currentProjectId} />}
       </div>
     </div>
   );
