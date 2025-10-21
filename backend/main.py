@@ -4,6 +4,9 @@ import json
 import uuid
 from typing import List, Dict
 import threading
+from dotenv import load_dotenv
+
+load_dotenv()
 
 from ai_agents import oscar
 
@@ -25,19 +28,33 @@ class TaskUpdate(BaseModel):
     output: str
 
 def run_orchestration_in_background(project_id: str):
-    with db_lock:
-        project = next((p for p in db["projects"] if p["id"] == project_id), None)
-    if project:
-        oscar.run_orchestration(project)
+    try:
         with db_lock:
-            project["status"] = "complete"
-            with open("memory/db.json", "w") as f:
-                json.dump(db, f, indent=2)
+            project = next((p for p in db["projects"] if p["id"] == project_id), None)
+        if project:
+            oscar.run_orchestration(project)
+            with db_lock:
+                project["status"] = "complete"
+                with open("memory/db.json", "w") as f:
+                    json.dump(db, f, indent=2)
+    except Exception as e:
+        with db_lock:
+            project = next((p for p in db["projects"] if p["id"] == project_id), None)
+            if project:
+                project["status"] = "failed"
+                project["error"] = str(e)
+                with open("memory/db.json", "w") as f:
+                    json.dump(db, f, indent=2)
 
 @app.post("/create_project")
 def create_project(project: Project):
     project_id = str(uuid.uuid4())
-    tasks = oscar.assign_tasks(project.prompt)
+    try:
+        tasks_str = oscar.assign_tasks(project.prompt)
+        tasks = json.loads(tasks_str)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to assign tasks: {e}")
+
     new_project = {
         "id": project_id,
         "prompt": project.prompt,
