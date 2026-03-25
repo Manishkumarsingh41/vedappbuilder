@@ -1,198 +1,196 @@
-# VedAppBuilder - Multi-Agent AI App Builder
+# 🚀 VedAppBuilder – Multi-Agent AI App Builder
 
-# VedAppBuilder 🚀
+VedAppBuilder is a multi-agent AI system that builds complete applications using specialized AI agents. Each agent plays a defined role (Product Manager, UI/UX Designer, Frontend, Backend, DevOps, QA) and collaborates to transform your idea into a working application.
 
-A multi-agent AI system that builds complete applications using specialized AI agents. Each agent has a specific role (Product Manager, UI/UX Designer, Frontend Dev, Backend Dev, DevOps, QA, Project Manager) and works together to analyze your requirements and generate code.
+---
 
-## ✨ Features
+## ✨ Key Features
 
-- **7 Specialized AI Agents** working in orchestrated workflow
-- **User-Provided API Keys** - Secure, no server-side storage
-- **Multiple LLM Support** - OpenAI, Google Gemini, Perplexity
-- **Real-time Progress** - Watch agents work in real-time
-- **Code Preview** - View generated code with syntax highlighting and live preview
-- **Real-time Chat** - Provide instructions and modifications during app building 💬
-- **Code Generation** - Download complete project files
-- **In-Memory Storage** - Fast, no database setup required
+- 🤖 7 Specialized AI Agents working in an orchestrated workflow  
+- 🔐 User-Provided API Keys (no server-side storage)  
+- 🧠 Multi-LLM Support – OpenAI, Gemini, Perplexity  
+- ⚡ Real-time Progress Tracking  
+- 💻 Code Preview with Live Rendering  
+- 💬 Real-time Chat with Agents  
+- 📦 Download Complete Project Code  
+- 🚀 In-Memory Storage (no DB required)
 
-## 🤖 AI Agents
+---
 
-| Agent | Role | Model | Purpose |
-|-------|------|-------|---------|
-| Perry | Product Manager | Perplexity | Research competitors, define features |
-| Gemma | UI/UX Designer | Gemini | Create layouts, design patterns |
-| Ollie | Frontend Developer | OpenAI | Generate React components |
-| Hugo | Backend Developer | OpenAI | Design APIs, database schemas |
-| Milo | DevOps Engineer | Gemini | Deployment configs, CI/CD |
-| Gemma QA | QA Tester | Gemini | Test cases, bug detection |
-| Ava | Project Manager | OpenAI | Coordinate team, final summary |
+## 🤖 AI Agent System
 
-## Features
+| Agent | Role | Model | Responsibility |
+|------|------|------|----------------|
+| Perry | Product Manager | Perplexity | Feature planning & research |
+| Gemma | UI/UX Designer | Gemini | Design systems & layouts |
+| Ollie | Frontend Dev | OpenAI | React UI generation |
+| Hugo | Backend Dev | OpenAI | APIs & database schemas |
+| Milo | DevOps | Gemini | CI/CD & deployment |
+| Gemma QA | QA Tester | Gemini | Testing & bug detection |
+| Ava | Project Manager | OpenAI | Workflow coordination |
 
-- **Multi-Agent System**: 7 specialized AI agents work together to build your app
-  - Perry (Product Manager) - Powered by Perplexity
-  - Gemma (UI/UX Designer) - Powered by Gemini
-  - Ollie (Frontend Developer) - Powered by OpenAI
-  - Hugo (Backend Developer) - Powered by OpenAI
-  - Milo (DevOps Engineer) - Powered by Gemini
-  - Gemma QA (QA Tester) - Powered by Gemini
-  - Ava (Project Manager) - Powered by OpenAI
+---
 
-- **User-Provided API Keys**: Securely provide your own API keys through the web interface
-- **Real-time Updates**: Watch agents work in real-time as they build your project
-- **Code Generation**: Agents generate actual code for your application
-- **Download Projects**: Export generated code and documentation as a ZIP file
+## 🛠️ Tech Stack
 
-## Getting Started
+Frontend: React, TypeScript, Vite, TailwindCSS, shadcn/ui  
+Backend: Node.js, Express, TypeScript  
+AI Models: GPT-4o-mini, Gemini 2.5 Flash, Perplexity Sonar  
+Storage: In-memory (no database required)
+
+---
+
+## 🚀 Getting Started
 
 ### Prerequisites
-
-- Node.js 20+ 
+- Node.js 20+
 - npm or yarn
 
 ### Installation
 
-1. Clone the repository:
-```bash
-git clone https://github.com/Manishkumarsingh41/vedappbuilder.git
-cd vedappbuilder
-```
+git clone https://github.com/Manishkumarsingh41/vedappbuilder.git  
+cd vedappbuilder  
+npm install  
 
-2. Install dependencies:
-```bash
-npm install
-```
+(Optional)  
+cp .env.example .env  
 
-3. (Optional) Create a `.env` file for server-side default API keys:
-```bash
-cp .env.example .env
-# Edit .env and add your API keys (optional - users can provide keys via UI)
-```
+---
 
-### Running the Application
+### ▶️ Run the App
 
-#### Development Mode
+Development  
+npm run dev  
 
-**Windows PowerShell:**
-```powershell
-$env:NODE_ENV='development'; npx tsx server/index.ts
-```
+Production  
+npm run build  
+npm start  
 
-**Linux/Mac:**
-```bash
-npm run dev
-```
+App runs at: http://localhost:5000
 
-The application will be available at `http://localhost:5000`
+---
 
-#### Production Mode
+## 🧠 How It Works
 
-```bash
-npm run build
-npm start
-```
+1. Enter your project idea  
+2. Provide API keys (OpenAI, Gemini, Perplexity)  
+3. Agents collaborate in real-time  
+4. Code is generated step-by-step  
+5. Download your complete project  
 
-## How to Use
+---
 
-1. **Open the Application**: Navigate to `http://localhost:5000` in your browser
+## 🔑 API Requirements
 
-2. **Create a New Project**: Fill in the project form:
-   - **Project Name**: Give your app a name
-   - **Description**: Describe what your app does and who it's for
-   - **Key Requirements**: List the main features and functionality you need
+- OpenAI → Frontend, Backend, PM  
+- Gemini → UI/UX, DevOps, QA  
+- Perplexity → Product Manager  
 
-3. **Configure API Keys** (Click "Show API Keys Configuration"):
-   - **OpenAI API Key**: Powers Frontend, Backend, and PM agents
-     - Get your key from: https://platform.openai.com/api-keys
-   - **Gemini API Key**: Powers UI/UX, DevOps, and QA agents
-     - Get your key from: https://aistudio.google.com/apikey
-   - **Perplexity API Key**: Powers Product Manager agent
-     - Get your key from: https://www.perplexity.ai/settings/api
+✔ Keys are never stored  
+✔ Sent directly to providers  
 
-   ⚠️ **Security Note**: Your API keys are sent directly to the AI providers and are **not stored** on our servers.
+---
 
-4. **Start Building**: Click "Start Building with AI" and watch the agents work!
+## 💬 Advanced Features
 
-5. **Download Your Project**: Once complete, download the generated code as a ZIP file
+Code Preview  
+- Syntax highlighting  
+- Multi-file navigation  
+- Live preview  
 
-## API Key Requirements
+Real-Time Chat  
+- Modify app during generation  
+Examples:  
+"Add dark mode"  
+"Use TypeScript"  
+"Add authentication"  
 
-To use all agents, you'll need API keys from:
+---
 
-- **OpenAI** (Required for 3 agents): Frontend Dev, Backend Dev, Project Manager
-- **Google Gemini** (Required for 3 agents): UI/UX Designer, DevOps, QA Tester  
-- **Perplexity** (Required for 1 agent): Product Manager
+## 📁 Project Structure
 
-You can provide API keys in two ways:
+vedappbuilder/  
+├── client/  
+├── server/  
+├── shared/  
+├── .env.example  
+└── package.json  
 
-1. **Via Web UI** (Recommended): Enter keys when creating a project
-2. **Via `.env` file**: Set default keys server-side (optional fallback)
+---
 
-## Project Structure
+# 📌 CONTRIBUTING.md
 
-```
-vedappbuilder/
-├── client/          # React frontend (Vite + TypeScript)
-├── server/          # Express backend (TypeScript)
-├── shared/          # Shared types and schemas
-├── .env.example     # Example environment variables
-└── package.json     # Dependencies and scripts
-```
+## 🤝 Contributing Guidelines
 
-## Technology Stack
+We welcome contributions from everyone 🚀  
 
-- **Frontend**: React, TypeScript, Vite, TailwindCSS, shadcn/ui
-- **Backend**: Node.js, Express, TypeScript
-- **AI Models**: OpenAI GPT-4o-mini, Google Gemini 2.5 Flash, Perplexity Sonar
-- **Storage**: In-memory (MemStorage) - no database required for local dev
+### Steps:
+1. Fork the repository  
+2. Create a branch (feature/your-feature)  
+3. Make changes  
+4. Commit your code  
+5. Submit a Pull Request  
 
-## Advanced Features
+### Rules:
+- Follow clean code practices  
+- Use meaningful commit messages  
+- Keep PRs small and focused  
+- Test before submitting  
 
-### Code Preview
-- View all generated code files with syntax highlighting
-- Multiple file tabs for easy navigation
-- Copy individual files to clipboard
-- Download files separately
-- Live iframe preview for HTML/React code
-- See [FEATURE_CODE_PREVIEW.md](./FEATURE_CODE_PREVIEW.md) for details
+---
 
-### Real-Time Chat 💬
-- Provide additional instructions while agents are building
-- Request modifications mid-workflow (e.g., "Make buttons rounded", "Add dark mode")
-- Agents re-process with full context of previous work
-- Natural language instructions - no code required
-- Floating chat button always accessible
-- See [FEATURE_CHAT.md](./FEATURE_CHAT.md) for details
+# 🗺️ ROADMAP.md
 
-**Example Chat Instructions:**
-- "Add a dark mode toggle to the header"
-- "Use TypeScript instead of JavaScript"
-- "Make the design more modern with gradients"
-- "Add user authentication with JWT"
+## Future Plans
 
-## Scripts
+- Improve agent collaboration  
+- Add offline execution mode  
+- Mobile app integration  
+- Plugin system for custom agents  
+- Database support (persistent memory)  
 
-- `npm run dev` - Start development server (Linux/Mac)
-- `npm run build` - Build for production
-- `npm start` - Start production server
-- `npm run check` - Run TypeScript type checking
-- `npm run db:push` - Push database schema (if using PostgreSQL)
+---
 
-## Security & Privacy
+# 🐛 SAMPLE ISSUES (Create in GitHub)
 
-- API keys provided via the UI are **never stored** on the server
-- Keys are passed directly to AI providers for each request
-- Server-side `.env` keys are optional fallbacks
-- All communication happens over HTTPS in production
+1. Add Dark Mode Toggle  
+Label: enhancement, good first issue  
 
-## Contributing
+2. Optimize API Response Speed  
+Label: performance  
 
-Contributions are welcome! Please feel free to submit a Pull Request.
+3. Improve UI Responsiveness  
+Label: UI, enhancement  
 
-## License
+4. Add Authentication System (JWT)  
+Label: feature  
 
-MIT
+5. Fix Chat Scroll Bug  
+Label: bug  
 
-## Support
+6. Add Docker Support  
+Label: devops  
 
-For issues and questions, please open an issue on GitHub.
+---
+
+## 🔐 Security
+
+- API keys are never stored  
+- Direct communication with providers  
+- HTTPS in production  
+
+---
+
+## 📜 License
+
+MIT License  
+
+---
+
+## 💬 Support
+
+Open an issue on GitHub for help  
+
+---
+
+⭐ Star the repo if you like it!
